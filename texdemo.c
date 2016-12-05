@@ -1,12 +1,10 @@
-#define GLFW_DLL 1
-
-#define GL_GLEXT_PROTOTYPES
-#include <GLES2/gl2.h>
+#include <OpenGL/gl.h>
 #include <GLFW/glfw3.h>
+
+#include "../deps/linmath.h"
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "linmath.h"
 #include <assert.h>
 
 typedef struct {
@@ -106,13 +104,10 @@ int main(void)
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
-	glfwDefaultWindowHints();
-	glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    window = glfwCreateWindow(640, 480, "ez-view", NULL, NULL);
+    window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -132,10 +127,8 @@ int main(void)
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertexes), vertexes, GL_STATIC_DRAW);
 
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    
-	glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
-	//printf("here break");
-	glCompileShaderOrDie(vertex_shader);
+    glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
+    glCompileShaderOrDie(vertex_shader);
 
     fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment_shader, 1, &fragment_shader_text, NULL);
