@@ -1,3 +1,2 @@
 all:
-	cl /MD /I. *.lib texdemo.c
-
+	cl /MD /I. *.lib main.c
