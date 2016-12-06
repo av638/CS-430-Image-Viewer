@@ -158,6 +158,23 @@ void glCompileShaderOrDie(GLuint shader)
     }
 }
 
+// Modified from demo. Check if the program has properly linked, if not then...
+// WELCOME TO DIE!
+void glLinkProgramOrDie(GLuint program)
+{
+    int link_success = 0;
+
+    glGetProgramiv(program, GL_LINK_STATUS, &link_success);
+
+    if (link_success == GL_FALSE)
+    {
+        GLchar message[256];
+        glGetProgramInfoLog(program, sizeof(message), 0, &message[0]);
+        printf("glLinkProgram Error: %s\n", message);
+        exit(-1);
+    }
+}
+
 
 // Main will both load the ppm image be it P6 or P3
 // and will load that image into the ez-view application in order to
@@ -301,34 +318,34 @@ int main(int argc, char *argv[])
     }
 
     // Turn on key callback in order to take in the user inputs
+    // for affine transformations
     glfwSetKeyCallback(window, key_callback);
-    glfwMakeContextCurrent(window);
 
+    glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
 
-
-    // NOTE: OpenGL error checks have been omitted for brevity
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertexes), vertexes, GL_STATIC_DRAW);
 
+    // Create the vertex shader and  do some error checking
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
     glCompileShaderOrDie(vertex_shader);
 
+    // Create the fragment shader and do some error checking
     fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment_shader, 1, &fragment_shader_text, NULL);
     glCompileShaderOrDie(fragment_shader);
 
 
-
+    // Create the program and do some error checking
     program = glCreateProgram();
     glAttachShader(program, vertex_shader);
     glAttachShader(program, fragment_shader);
     glLinkProgram(program);
-
-    // more error checking! glLinkProgramOrDie!
+    glLinkProgramOrDie(program);
 
     mvp_location = glGetUniformLocation(program, "MVP");
     assert(mvp_location != -1);
