@@ -100,11 +100,11 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     if (key == GLFW_KEY_MINUS && action == GLFW_PRESS)
     	scale *= .5;
 
-    // Translate the image up using up arrow
+    // Translate the image down using down arrow
     if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
     	translate_y += .1;
 
-    // Translate the image down using down arrow
+    // Translate the image Up using up arrow
     if (key == GLFW_KEY_UP && action == GLFW_PRESS)
     	translate_y -= .1;
 
@@ -131,9 +131,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     // Shear image left using A key
     if (key == GLFW_KEY_A && action == GLFW_PRESS) //Shear Left
     	shear_x -= .1;
-
-    //TODO: SCALE, SHEAR
-
 }
 
 // Same Compile shade checker from the tex demo
@@ -303,19 +300,15 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-
-
+    // Turn on key callback in order to take in the user inputs
     glfwSetKeyCallback(window, key_callback);
-
     glfwMakeContextCurrent(window);
 
-    // gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     glfwSwapInterval(1);
 
 
 
     // NOTE: OpenGL error checks have been omitted for brevity
-
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertexes), vertexes, GL_STATIC_DRAW);
@@ -389,13 +382,13 @@ int main(int argc, char *argv[])
     while (!glfwWindowShouldClose(window))
     {
         float ratio;
-        int width, height;
+        int windowWidth, windowHeight;
         mat4x4 r, h, s, t, rh, rhs, mvp; //matrices for each transformation and intermediate values
 
-        glfwGetFramebufferSize(window, &width, &height);
-        ratio = width / (float) height;
+        glfwGetFramebufferSize(window, &windowWidth, &windowHeight);
+        ratio = windowWidth / (float) windowHeight;
 
-        glViewport(0, 0, width, height);
+        glViewport(0, 0, windowWidth, windowHeight);
         glClear(GL_COLOR_BUFFER_BIT);
 
         //RHS T
