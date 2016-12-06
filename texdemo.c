@@ -1,8 +1,11 @@
-#include <OpenGL/gl.h>
+#define GLFW_INCLUDE_ES2
+#define GLFW_DLL 1
+
+#define GL_GLEXT_PROTOTYPES
+#include <GLES2/gl2.h>
 #include <GLFW/glfw3.h>
 
-#include "../deps/linmath.h"
-
+#include "linmath.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -33,7 +36,7 @@ static const char* vertex_shader_text =
 "}\n";
 
 static const char* fragment_shader_text =
-"varying vec2 TexCoordOut;\n"
+"varying lowp vec2 TexCoordOut;\n"
 "uniform sampler2D Texture;\n"
 "void main()\n"
 "{\n"
@@ -104,6 +107,9 @@ int main(void)
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
+    glfwDefaultWindowHints();
+    glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
@@ -167,7 +173,7 @@ int main(void)
 			  GL_FALSE,
                           sizeof(Vertex),
 			  (void*) (sizeof(float) * 2));
-    
+
     int image_width = 4;
     int image_height = 4;
 
@@ -177,7 +183,7 @@ int main(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, 
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA,
 		 GL_UNSIGNED_BYTE, image);
 
     glActiveTexture(GL_TEXTURE0);

@@ -76,7 +76,19 @@ static void error_callback(int error, const char* description)
 
 // This function will perform all of the affine transformations on the loaded image
 // Whenever a key is pressed we will change/affect the loaded image
-//
+// Escape is quit
+// Q is turn image left 90 degrees
+// E is turn image right 90 degrees
+// W is shear image up
+// S is shear image down
+// A is shear image left
+// D is shear image right
+// - is zoom out
+// = is zoom in
+// up arrow is move image up
+// down arrow is move image down
+// left arrow is move image left
+// right arrow is move image right
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     // Hit escape to quite the ez-view program
