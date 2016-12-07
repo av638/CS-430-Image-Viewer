@@ -11,16 +11,29 @@ Ex. main work.ppm
 
 
 Finally in order to do the affine transformations you must use these keys:
+
 // Escape is quit
+
 // Q is turn image left 90 degrees
+
 // E is turn image right 90 degrees
+
 // W is shear image up
+
 // S is shear image down
+
 // A is shear image left
+
 // D is shear image right
+
 // - is zoom out
+
 // = is zoom in
-// up arrow is move image up
-// down arrow is move image down
-// left arrow is move image left
-// right arrow is move image right
+
+// up arrow is move up on image
+
+// down arrow is move down on image
+
+// left arrow is move left on image
+
+// right arrow is move right on image
