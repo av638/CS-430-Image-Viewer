@@ -7,7 +7,7 @@ In order to run this you will need the entire repo since we need gles2 and so on
 once that is all grabed just run nmake in the visual studio command prompt. 
 Finally just type the name of the output exe as well as the input ppm file.
 
-Ex. main work.ppm
+Ex. ezview work.ppm
 
 
 Finally in order to do the affine transformations you must use these keys:
