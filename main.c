@@ -1,6 +1,12 @@
-#define GLFW_DLL 1
+// CS 430 Image View
+// Created by Alejandro Varela
+// This program will load a ppm image file (P6 or P3)
+// and will allow the user to do affine transformations
+// on the image, but it will not save the changed image
 
+#define GLFW_DLL 1
 #define GL_GLEXT_PROTOTYPES
+
 #include <GLES2/gl2.h>
 #include <GLFW/glfw3.h>
 
@@ -26,6 +32,7 @@ typedef struct Pixmap
 
 
 // Create all the vertexes to be used for properly displaying the image
+// Essentially using two triangles to represent the entire image
 Vertex vertexes[] = {
   {{1, -1}, {0.99999, 0.99999}},
   {{1, 1},  {0.99999, 0}},
@@ -36,14 +43,14 @@ Vertex vertexes[] = {
 };
 
 
-
+// These variables are used for the affine transformations
 const double pi = 3.1415926535897;
 float rotation = 0;
 float scale = 1;
-float translate_x = 0;
-float translate_y = 0;
-float shear_x = 0;
-float shear_y = 0;
+float translateX = 0;
+float translateY = 0;
+float shearX = 0;
+float shearY = 0;
 
 
 // Same vertex shader from the texDemo
@@ -104,7 +111,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     	rotation -= 90*pi/180;
 
     // Zoom into the image using =	key
-    if (key == GLFW_KEY_EQUAL && action == GLFW_PRESS)//
+    if (key == GLFW_KEY_EQUAL && action == GLFW_PRESS)
 
     	scale *= 2;
 
@@ -114,35 +121,35 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
     // Translate the image down using down arrow
     if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-    	translate_y += .1;
+    	translateY += .1;
 
     // Translate the image Up using up arrow
     if (key == GLFW_KEY_UP && action == GLFW_PRESS)
-    	translate_y -= .1;
+    	translateY -= .1;
 
     // Translate the image left using left arrow
     if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
-    	translate_x += .1;
+    	translateX += .1;
 
     // Translate the image right using right arrow
     if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-    	translate_x -= .1;
-
-    // Shear image upward using W key
-    if (key == GLFW_KEY_W && action == GLFW_PRESS) //Shear Up
-    	shear_y += .1;
-
-    // Shear image downward using S key
-    if (key == GLFW_KEY_S && action == GLFW_PRESS) //Shear Down
-    	shear_y -= .1;
+    	translateX -= .1;
 
     // Shear image right using D key
-    if (key == GLFW_KEY_D && action == GLFW_PRESS) //Shear Right
-    	shear_x += .1;
+    if (key == GLFW_KEY_D && action == GLFW_PRESS)
+    	shearY += .1;
 
     // Shear image left using A key
-    if (key == GLFW_KEY_A && action == GLFW_PRESS) //Shear Left
-    	shear_x -= .1;
+    if (key == GLFW_KEY_A && action == GLFW_PRESS)
+    	shearY -= .1;
+
+    // Shear image up using W key
+    if (key == GLFW_KEY_W && action == GLFW_PRESS)
+    	shearX += .1;
+
+    // Shear image down using S key
+    if (key == GLFW_KEY_S && action == GLFW_PRESS)
+    	shearX -= .1;
 }
 
 // Same Compile shade checker from the tex demo
@@ -197,8 +204,10 @@ int main(int argc, char *argv[])
     GLuint vertex_buffer, vertex_shader, fragment_shader, program;
     GLint mvp_location, vpos_location;
 
+///////////////////////////////////// START OF IMAGE LOADING /////////////////////////////////////
+
     // Create variables for the image loading
-     FILE *source;
+    FILE *source;
     int magicNumber;
     char c;
     int width, height, maxColor;
@@ -218,8 +227,7 @@ int main(int argc, char *argv[])
 
     fscanf(source, "P%c\n", &c);
     magicNumber = c -'0';// convert the magic number over to an int
-    //printf("%d", magicNumber);
-    //printf("%c", c);
+
     if (magicNumber != 6 && magicNumber != 3 ) //if not in either p6 or p3 format then exit
     {
         fprintf(stderr, "\nERROR: This is not in the correct ppm format!");
@@ -243,8 +251,7 @@ int main(int argc, char *argv[])
 
     // read in the width, height. and max color value
     fscanf(source, "%d %d %d\n", &width, &height, &maxColor);
-    //printf("%d", width);
-    //printf("%d", maxColor);
+
     if(maxColor > 255 || maxColor <= 0){
         fprintf(stderr,"\nERROR: Image is not 8 bits per channel!");
         fclose(source);
@@ -309,9 +316,11 @@ int main(int argc, char *argv[])
 
     fclose(source);
 
+///////////////////////////////////// END OF IMAGE LOADING /////////////////////////////////////
+
+    // initialize glfw library
     if (!glfwInit())
         exit(EXIT_FAILURE);
-
 
     // Same hints used in the demo provided
 	glfwDefaultWindowHints();
@@ -412,7 +421,9 @@ int main(int argc, char *argv[])
     {
         float ratio;
         int windowWidth, windowHeight;
-        mat4x4 r, h, s, t, rh, rhs, mvp; //matrices for each transformation and intermediate values
+
+        //matrices for each transformation and their intermediate values
+        mat4x4 r, h, s, t, rh, rhs, mvp;
 
         glfwGetFramebufferSize(window, &windowWidth, &windowHeight);
         ratio = windowWidth / (float) windowHeight;
@@ -420,34 +431,43 @@ int main(int argc, char *argv[])
         glViewport(0, 0, windowWidth, windowHeight);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //RHS T
+         //add current rotation to the given image
         mat4x4_identity(r);
-        mat4x4_rotate_Z(r, r, rotation); //angle of rotation
+        mat4x4_rotate_Z(r, r, rotation);
 
+        //add current shear value to the given image
         mat4x4_identity(h);
-        h[0][1] = shear_x;
-        h[1][0] = shear_y;
+        h[0][1] = shearX;
+        h[1][0] = shearY;
 
-
-        mat4x4_identity(s); //NOT WORKING AS INTENDED
+        //add current scale value to the given image
+        mat4x4_identity(s);
         s[0][0] = s[0][0]*scale;
         s[1][1] = s[1][1]*scale;
 
+        //add current translate value to the given image
         mat4x4_identity(t);
-        mat4x4_translate(t, translate_x, translate_y, 0);
+        mat4x4_translate(t, translateX, translateY, 0);
 
+        //Do the calculations that will actually affect the image by all current important values
         mat4x4_mul(rh, r, h); //R*H
         mat4x4_mul(rhs, rh, s);//R*H*S
         mat4x4_mul(mvp, rhs, t);//R*H*S*T
 
+
+        // Render the updated version of the image
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         glfwSwapBuffers(window);
+
+        // Processes the events that have occurred which in this case
+        // come from the keyboard input
         glfwPollEvents();
     }
 
+    // Clean Up
     free(buffer);
     glfwDestroyWindow(window);
     glfwTerminate();
