@@ -73,7 +73,7 @@ GLint simple_shader(GLint shader_type, char* shader_src) {
   return shader_id;
 }
 
-
+// checking linker
 int simple_program() {
 
   GLint link_success = 0;
